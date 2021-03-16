@@ -96,7 +96,7 @@ export default {
   mixins: [Mixins],
   data() {
     return {
-      items: ["Dinheiro", "Crédito", "Débito", "Transferência"],
+      items: ["Dinheiro", "Crédito", "Débito", "Transferência", "MercadoPago"],
       pay: null,
       change_for: null,
     };
@@ -149,12 +149,20 @@ export default {
           noMsg: true,
         })
         .then((resp) => {
+          if (resp.data.mp_response) {
+            window.location.href = resp.data.mp_response.response.init_point;
+          }
           this.$store.commit("sale/request", [
             "cart",
             { open: false, step: 1 },
           ]);
-          this.$store.commit("sale/request", ["purchaseDetails", resp.data]);
-          this.$router.push("pedidos-detalhes/" + resp.data.id).catch(() => {});
+          this.$store.commit("sale/request", [
+            "purchaseDetails",
+            resp.data.saleReturn,
+          ]);
+          this.$router
+            .push("pedidos-detalhes/" + resp.data.saleReturn.id)
+            .catch(() => {});
           this.$store.dispatch("sale/idb", {
             state: "sale",
             method: "deleteAll",
